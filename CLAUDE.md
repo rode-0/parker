@@ -1,8 +1,8 @@
-# Parker -- Sulfur Sales Platform
+# Georgia Gulf Internal -- Sulfur Sales Platform
 
 ## Project Overview
 
-Parker is a full-stack sulfur sales tool for field sales reps covering US and Canada territories. It combines pricing intelligence, quote generation, customer management, and territory mapping into one app.
+Georgia Gulf Internal is a full-stack sulfur sales tool for field sales reps covering US and Canada territories. It combines pricing intelligence, quote generation, customer management, and territory mapping into one app.
 
 ## Tech Stack
 
@@ -16,7 +16,7 @@ Parker is a full-stack sulfur sales tool for field sales reps covering US and Ca
 ## Architecture
 
 ```
-parker/
+gg-internal/
 ├── frontend/src/
 │   ├── pages/
 │   │   ├── Dashboard.tsx         # Price dashboard with SVG charts

@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { initializeDatabase, seedPrices } from "./schema";
 
-const DB_PATH = process.env.DB_PATH || path.join(__dirname, "../../data/parker.db");
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, "../../data/gg-internal.db");
 
 let db: Database | null = null;
 let initPromise: Promise<Database> | null = null;

@@ -1,8 +1,8 @@
-# Parker -- Agent & Development Guidelines
+# Georgia Gulf Internal -- Agent & Development Guidelines
 
 ## Project Structure
 
-Parker is a monorepo with two packages:
+Georgia Gulf Internal is a monorepo with two packages:
 
 - `frontend/` -- React 18 + Vite SPA. Pages in `src/pages/`, API clients in `src/services/`, types in `src/types/`.
 - `backend/` -- Express + TypeScript API. Routes in `src/routes/`, business logic in `src/services/`, database in `src/db/`, types in `src/types/`.
@@ -110,7 +110,7 @@ Priority areas for test coverage:
 | Variable | Default | Where |
 |----------|---------|-------|
 | `PORT` | `3001` | Backend |
-| `DB_PATH` | `data/parker.db` | Backend |
+| `DB_PATH` | `data/gg-internal.db` | Backend |
 | `VITE_API_URL` | `http://localhost:3001/api` | Frontend |
 
 ## External Services

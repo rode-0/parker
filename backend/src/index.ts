@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "parker-api" });
+  res.json({ status: "ok", service: "gg-internal-api" });
 });
 
 app.use("/api/prices", pricesRouter);
@@ -22,7 +22,7 @@ app.use("/api/import", importRouter);
 app.use("/api/customers", customersRouter);
 
 const server = app.listen(PORT, () => {
-  process.stdout.write(`Parker API running on port ${PORT}\n`);
+  process.stdout.write(`Georgia Gulf Internal API running on port ${PORT}\n`);
 });
 
 process.on("SIGTERM", () => {

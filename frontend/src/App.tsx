@@ -5,8 +5,9 @@ function App() {
     <div className="app">
       <header className="header">
         <div className="header-inner">
-          <h1 className="logo">Parker</h1>
-          <span className="tagline">Sulfur Sales Tools</span>
+          <img src="/logo.svg" alt="GG" style={{ width: 32, height: 32 }} />
+          <h1 className="logo">Georgia Gulf Internal</h1>
+          <span className="tagline">Sulfur Sales Platform</span>
           <nav className="nav">
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
               Price Dashboard

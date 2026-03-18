@@ -1,7 +1,7 @@
 {
-  "name": "parker-frontend",
+  "name": "gg-internal-frontend",
   "version": "1.0.0",
-  "description": "Sulfur sales quote builder and price dashboard UI",
+  "description": "Georgia Gulf Internal - Sulfur sales platform UI",
   "type": "module",
   "scripts": {
     "dev": "vite --host",

@@ -1,6 +1,6 @@
-# Parker
+# Georgia Gulf Internal
 
-Parker is a sulfur sales platform for managing customer relationships, building quotes, tracking benchmark pricing, and planning sales routes. Built with React, Express, and SQLite.
+Georgia Gulf Internal is a sulfur sales platform for managing customer relationships, building quotes, tracking benchmark pricing, and planning sales routes. Built with React, Express, and SQLite.
 
 ## Features
 
@@ -40,7 +40,7 @@ Parker is a sulfur sales platform for managing customer relationships, building 
 ## Repository Layout
 
 ```
-parker/
+gg-internal/
 ├── frontend/                  # React SPA (port 5173)
 │   └── src/
 │       ├── pages/             # Dashboard, QuoteBuilder, QuoteList, Import,
@@ -101,7 +101,7 @@ cd frontend && npm run dev
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PORT` | `3001` | Backend API port |
-| `DB_PATH` | `data/parker.db` | SQLite database file path |
+| `DB_PATH` | `data/gg-internal.db` | SQLite database file path |
 | `VITE_API_URL` | `http://localhost:3001/api` | Frontend API base URL |
 
 ## API Reference

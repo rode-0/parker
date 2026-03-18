@@ -1,7 +1,7 @@
 {
-  "name": "parker-backend",
+  "name": "gg-internal-backend",
   "version": "1.0.0",
-  "description": "Sulfur sales quote builder and price dashboard API",
+  "description": "Georgia Gulf Internal - Sulfur sales platform API",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

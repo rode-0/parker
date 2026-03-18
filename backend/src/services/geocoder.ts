@@ -30,7 +30,7 @@ export async function geocodeAddress(
 
   try {
     const res = await fetch(url, {
-      headers: { "User-Agent": "Parker-SulfurSales/1.0" },
+      headers: { "User-Agent": "GeorgiaGulfInternal/1.0" },
     });
     if (!res.ok) return null;
 
