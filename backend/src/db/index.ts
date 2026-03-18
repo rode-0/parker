@@ -2,6 +2,7 @@ import initSqlJs, { Database } from "sql.js";
 import fs from "fs";
 import path from "path";
 import { initializeDatabase, seedPrices } from "./schema";
+import { dbLogger } from "../lib/logger";
 
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, "../../data/gg-internal.db");
 
@@ -26,8 +27,10 @@ export async function getDatabase(): Promise<Database> {
     if (fs.existsSync(DB_PATH)) {
       const buffer = fs.readFileSync(DB_PATH);
       db = new SQL.Database(buffer);
+      dbLogger.info({ path: DB_PATH }, "Database loaded from file");
     } else {
       db = new SQL.Database();
+      dbLogger.warn({ path: DB_PATH }, "No database file found, creating new database");
     }
 
     initializeDatabase(db);
@@ -48,9 +51,16 @@ export function saveDatabase(): void {
 
 export function closeDatabase(): void {
   if (db) {
+    dbLogger.info("Database closing");
     saveDatabase();
     db.close();
     db = null;
     initPromise = null;
   }
+}
+
+// Test support: allow injecting a test database
+export function _setTestDb(testDb: Database): void {
+  db = testDb;
+  initPromise = Promise.resolve(testDb);
 }

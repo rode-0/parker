@@ -1,5 +1,6 @@
 import type { Customer, CreateCustomerInput } from "../types/customer";
 import { getDatabase, saveDatabase } from "../db";
+import { customerLogger } from "../lib/logger";
 
 function rowToCustomer(columns: string[], values: unknown[]): Customer {
   const obj: Record<string, unknown> = {};
@@ -57,6 +58,7 @@ export async function getCustomer(id: number): Promise<Customer | null> {
 }
 
 export async function createCustomer(input: CreateCustomerInput): Promise<Customer> {
+  customerLogger.info({ company: input.company_name, city: input.city, state: input.state }, "Creating customer");
   const db = await getDatabase();
   db.run(
     `INSERT INTO customers (company_name, contact_name, email, phone, address, city, state, zip, country,

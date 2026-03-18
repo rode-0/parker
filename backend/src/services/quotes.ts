@@ -1,6 +1,7 @@
 import type { Quote, CreateQuoteInput } from "../types";
 import { getDatabase, saveDatabase } from "../db";
 import { calculateQuotePrice } from "./pricing";
+import { quoteLogger } from "../lib/logger";
 
 function rowToQuote(columns: string[], values: unknown[]): Quote {
   const obj: Record<string, unknown> = {};
@@ -9,6 +10,7 @@ function rowToQuote(columns: string[], values: unknown[]): Quote {
 }
 
 export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
+  quoteLogger.info({ customer: input.customer_company, benchmark: input.benchmark, qty: input.quantity_mt }, "Creating quote");
   const pricing = await calculateQuotePrice(
     input.benchmark,
     input.grade,

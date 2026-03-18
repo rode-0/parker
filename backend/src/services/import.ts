@@ -1,5 +1,6 @@
 import { PDFParse } from "pdf-parse";
 import { getDatabase, saveDatabase } from "../db";
+import { importLogger } from "../lib/logger";
 import { parseAcuityPdf, type AcuityReport } from "./acuity-parser";
 
 export type ImportResult = {
@@ -122,6 +123,8 @@ export async function importAcuityPdf(
     result.freight_rates +
     result.related_markets +
     result.exchange_rates;
+
+  importLogger.info({ reportDate: report.report_date, total: result.total_records, sulphur: result.sulphur_prices, freight: result.freight_rates }, "Acuity report imported");
 
   // Record the import
   db.run(

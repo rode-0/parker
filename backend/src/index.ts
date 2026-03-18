@@ -1,35 +1,15 @@
-import express from "express";
-import cors from "cors";
-import pricesRouter from "./routes/prices";
-import quotesRouter from "./routes/quotes";
-import importRouter from "./routes/import";
-import customersRouter from "./routes/customers";
-import activitiesRouter from "./routes/activities";
+import app from "./app";
+import logger from "./lib/logger";
 import { closeDatabase } from "./db";
 
-const app = express();
 const PORT = parseInt(process.env.PORT || "3001");
 
-app.use(cors());
-app.use(express.json());
-
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", service: "gg-internal-api" });
-});
-
-app.use("/api/prices", pricesRouter);
-app.use("/api/quotes", quotesRouter);
-app.use("/api/import", importRouter);
-app.use("/api/customers", customersRouter);
-app.use("/api/activities", activitiesRouter);
-
 const server = app.listen(PORT, () => {
-  process.stdout.write(`Georgia Gulf Internal API running on port ${PORT}\n`);
+  logger.info({ port: PORT }, "Georgia Gulf Internal API started");
 });
 
 process.on("SIGTERM", () => {
+  logger.info("SIGTERM received, shutting down");
   closeDatabase();
   server.close();
 });
-
-export default app;

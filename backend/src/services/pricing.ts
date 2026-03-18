@@ -1,5 +1,6 @@
 import type { SulfurGrade, SulfurForm, PricingBenchmark, SulfurPrice, PriceEntry } from "../types";
 import { getDatabase, saveDatabase } from "../db";
+import { priceLogger } from "../lib/logger";
 
 const GRADE_ADJUSTMENTS: Record<SulfurGrade, number> = {
   bright_yellow: 500,
@@ -68,6 +69,7 @@ export async function getPriceHistory(
 }
 
 export async function addPrice(entry: PriceEntry): Promise<SulfurPrice> {
+  priceLogger.info({ benchmark: entry.benchmark, cents: entry.price_cents }, "Adding price");
   const db = await getDatabase();
   db.run(
     "INSERT INTO sulfur_prices (benchmark, price_low_cents, price_high_cents, price_type, delivery_term, source) VALUES (?, ?, ?, ?, ?, ?)",
@@ -94,6 +96,7 @@ export async function calculateQuotePrice(
 }> {
   const latestPrice = await getLatestPrice(benchmark);
   if (!latestPrice) {
+    priceLogger.error({ benchmark }, "No pricing data available for benchmark");
     throw new Error(`No pricing data available for benchmark: ${benchmark}`);
   }
 

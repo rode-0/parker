@@ -1,4 +1,5 @@
 import { getDatabase, saveDatabase } from "../db";
+import { activityLogger } from "../lib/logger";
 
 export type Activity = {
   id: number;
@@ -25,6 +26,7 @@ function rowToActivity(columns: string[], values: unknown[]): Activity {
 }
 
 export async function createActivity(input: CreateActivityInput): Promise<Activity> {
+  activityLogger.info({ customerId: input.customer_id, type: input.type, date: input.date }, "Logging activity");
   const db = await getDatabase();
 
   db.run(

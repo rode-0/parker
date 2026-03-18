@@ -1,3 +1,5 @@
+import { geocodeLogger } from "../lib/logger";
+
 export type GeocodingResult = {
   latitude: number;
   longitude: number;
@@ -32,10 +34,16 @@ export async function geocodeAddress(
     const res = await fetch(url, {
       headers: { "User-Agent": "GeorgiaGulfInternal/1.0" },
     });
-    if (!res.ok) return null;
+    if (!res.ok) {
+      geocodeLogger.warn({ status: res.status, city, state }, "Geocoding HTTP error");
+      return null;
+    }
 
     const data = await res.json() as Array<{ lat: string; lon: string }>;
-    if (!Array.isArray(data) || data.length === 0) return null;
+    if (!Array.isArray(data) || data.length === 0) {
+      geocodeLogger.warn({ city, state }, "Geocoding returned no results");
+      return null;
+    }
 
     return {
       latitude: parseFloat(data[0]!.lat),

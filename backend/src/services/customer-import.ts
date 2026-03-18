@@ -2,6 +2,7 @@ import * as XLSX from "xlsx";
 import type { CreateCustomerInput, ColumnMapping, CustomerImportResult, ImportPreview } from "../types/customer";
 import { getDatabase, saveDatabase } from "../db";
 import { geocodeAddress } from "./geocoder";
+import { importLogger } from "../lib/logger";
 
 const COLUMN_ALIASES: Record<string, string[]> = {
   company_name: ["company", "company name", "company_name", "organization", "org", "customer", "account"],
@@ -174,6 +175,8 @@ export async function importCustomers(
       result.geocode_failed++;
     }
   }
+
+  importLogger.info({ imported: result.imported, skipped: result.skipped, geocoded: result.geocoded, failed: result.geocode_failed }, "Customer import complete");
 
   saveDatabase();
   return result;
