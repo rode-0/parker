@@ -1,140 +1,173 @@
 # Parker
 
-Parker is a sulfur sales tool for building customer quotes, tracking benchmark pricing, and importing Acuity market reports. The repository is split into a React frontend and an Express backend, with local persistence handled through `sql.js`.
+Parker is a sulfur sales platform for managing customer relationships, building quotes, tracking benchmark pricing, and planning sales routes. Built with React, Express, and SQLite.
 
 ## Features
 
-- Price dashboard for benchmark sulfur prices and historical trends
-- Quote builder with live pricing preview
-- Quote list and status management
-- PDF import flow for Acuity regional briefing reports
-- Import history tracking for uploaded reports
+### Price Dashboard
+- Real-time sulfur price tracking across benchmarks (Vancouver FOB, US Gulf Coast FOB, Tampa Contract DEL)
+- Interactive SVG price history charts with benchmark switching
+- Price ranges displayed with delivery terms and data sources
+
+### Acuity Report Import
+- Drag-and-drop PDF import for Acuity Regional Briefing (US & Canada)
+- Parses sulphur prices, sulphuric acid, freight rates, related markets, and exchange rates
+- Import history tracking with duplicate detection
+
+### Quote Builder
+- Generate customer quotes with grade, form, quantity, and freight inputs
+- Live pricing preview with line-item breakdown (base price, grade/form adjustments, volume discounts)
+- Quote lifecycle management (draft, sent, accepted, expired)
+
+### Customer Management
+- Import customers from Excel (.xlsx) or CSV with auto-detected column mapping
+- Nominatim geocoding to pin customer addresses on a map
+- Searchable customer list with filters for state, customer type, and priority
+- Interactive Leaflet map with colored pins (by priority or customer type) and detail popups
 
 ## Tech Stack
 
-- Frontend: React 18, TypeScript, Vite
-- Backend: Express, TypeScript
-- Storage: `sql.js`
-- Testing: Vitest, Testing Library on the frontend
-- Local containers: Docker Compose
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, TypeScript, Vite, Leaflet, react-leaflet |
+| Backend | Express, TypeScript, multer, pdf-parse, xlsx (SheetJS) |
+| Database | SQLite via sql.js (WASM, no native deps) |
+| Maps | Leaflet + OpenStreetMap tiles (free, no API key) |
+| Geocoding | Nominatim / OpenStreetMap (free, 1 req/sec) |
+| Testing | Vitest, Testing Library |
+| Containers | Docker + Docker Compose |
 
 ## Repository Layout
 
-```text
-.
-├── frontend/              # React app
+```
+parker/
+├── frontend/                  # React SPA (port 5173)
 │   └── src/
-│       ├── pages/         # Dashboard, quotes, import UI
-│       ├── services/      # API client
-│       └── types/         # Shared frontend types
-├── backend/               # Express API
+│       ├── pages/             # Dashboard, QuoteBuilder, QuoteList, Import,
+│       │                      # Customers, CustomerImport, CustomerMap
+│       ├── services/          # api.ts, customerApi.ts
+│       └── types/             # index.ts, customer.ts
+├── backend/                   # Express API (port 3001)
 │   └── src/
-│       ├── db/            # Database init and schema
-│       ├── routes/        # API route handlers
-│       ├── services/      # Pricing, quotes, import logic
-│       └── types/         # Backend types
-├── data/                  # Sample/source import files
+│       ├── db/                # sql.js init, schema (6 tables)
+│       ├── routes/            # prices, quotes, import, customers
+│       ├── services/          # pricing, quotes, import, acuity-parser,
+│       │                      # customers, customer-import, geocoder
+│       └── types/             # index.ts, customer.ts, sql.js.d.ts, pdf-parse.d.ts
+├── data/                      # Sample Acuity PDF for import testing
 ├── docker-compose.yml
-└── AGENTS.md
+├── CLAUDE.md                  # Project context for Claude Code
+└── AGENTS.md                  # Coding standards and conventions
 ```
 
 ## Getting Started
 
-### Option 1: Docker
+### Docker
 
 ```bash
 docker compose up --build
 ```
 
-This starts:
+Frontend: http://localhost:5173 | Backend: http://localhost:3001
 
-- Frontend at `http://localhost:5173`
-- Backend at `http://localhost:3001`
-
-### Option 2: Run Each App Locally
-
-Install dependencies in both packages:
+### Local Development
 
 ```bash
+# Install dependencies
 cd backend && npm install
 cd ../frontend && npm install
+
+# Start backend (terminal 1)
+cd backend && npm run dev
+
+# Start frontend (terminal 2)
+cd frontend && npm run dev
 ```
 
-Start the backend:
+## Commands
 
-```bash
-cd backend
-npm run dev
-```
-
-Start the frontend in another terminal:
-
-```bash
-cd frontend
-npm run dev
-```
-
-## Useful Commands
-
-### Frontend
-
-```bash
-cd frontend
-npm run dev
-npm run build
-npm run lint
-npm run test
-npm run test:run
-```
-
-### Backend
-
-```bash
-cd backend
-npm run dev
-npm run build
-npm run start
-npm run lint
-npm run test
-npm run test:run
-```
+| Command | Location | Purpose |
+|---------|----------|---------|
+| `npm run dev` | backend | Start API with hot reload (port 3001) |
+| `npm run dev` | frontend | Start Vite dev server (port 5173) |
+| `npm run build` | either | Compile TypeScript |
+| `npm run test` | either | Run Vitest in watch mode |
+| `npm run test:run` | either | Run tests once |
+| `npm run lint` | either | ESLint check |
+| `docker compose up --build` | root | Start everything |
 
 ## Configuration
 
-Backend environment variables:
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3001` | Backend API port |
+| `DB_PATH` | `data/parker.db` | SQLite database file path |
+| `VITE_API_URL` | `http://localhost:3001/api` | Frontend API base URL |
 
-- `PORT`: API port, defaults to `3001`
-- `DB_PATH`: path to the persisted database file
+## API Reference
 
-Frontend environment variables:
+### Prices
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/prices` | Latest price per benchmark |
+| `GET` | `/api/prices/:benchmark/history?days=365` | Historical prices |
+| `POST` | `/api/prices` | Add manual price entry |
 
-- `VITE_API_URL`: API base URL, set to `http://localhost:3001/api` in Docker
+### Quotes
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/quotes` | List quotes (optional `?status=` filter) |
+| `GET` | `/api/quotes/:id` | Get single quote |
+| `POST` | `/api/quotes` | Create quote |
+| `POST` | `/api/quotes/preview` | Preview pricing without saving |
+| `PATCH` | `/api/quotes/:id/status` | Update quote status |
+| `DELETE` | `/api/quotes/:id` | Delete quote |
 
-## API Overview
+### Import
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/import/acuity` | Upload Acuity PDF (multipart) |
+| `GET` | `/api/import/history` | List past imports |
 
-Key backend routes:
+### Customers
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/customers` | List/search (`?search=&state=&customer_type=&priority=`) |
+| `GET` | `/api/customers/:id` | Get single customer |
+| `POST` | `/api/customers` | Create customer |
+| `PUT` | `/api/customers/:id` | Update customer |
+| `DELETE` | `/api/customers/:id` | Delete customer |
+| `POST` | `/api/customers/import/preview` | Upload Excel/CSV, get column mapping preview |
+| `POST` | `/api/customers/import` | Import with confirmed mapping + geocode |
+| `POST` | `/api/customers/:id/geocode` | Re-geocode single customer |
+| `GET` | `/api/customers/map` | Customers with coordinates for map |
 
-- `GET /api/health`
-- `GET /api/prices`
-- `GET /api/prices/:benchmark/history?days=365`
-- `POST /api/prices`
-- `GET /api/quotes`
-- `POST /api/quotes`
-- `POST /api/quotes/preview`
-- `PATCH /api/quotes/:id/status`
-- `DELETE /api/quotes/:id`
-- `POST /api/import/acuity`
-- `GET /api/import/history`
+### Health
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/health` | Service health check |
 
-The import endpoint accepts PDF uploads and is configured for files up to 10 MB.
+## Database Schema
+
+Six tables in SQLite:
+
+- **sulfur_prices** -- benchmark prices with ranges (low/high cents), delivery terms, sources
+- **freight_rates** -- shipping rates by route and vessel size
+- **related_markets** -- ammonia, DAP, WTI, natural gas, copper
+- **exchange_rates** -- BRL, CAD, CNY to USD
+- **acuity_imports** -- import history metadata
+- **quotes** -- customer quotes with full pricing breakdown
+- **customers** -- customer CRM with geocoded coordinates
 
 ## Domain Notes
 
-- Monetary values are stored as integer cents
-- Quantities are expressed in metric tons
-- Benchmarks include `tampa_cfr`, `vancouver_fob`, `middle_east_fob`, and `china_cfr`
-- A sample Acuity report PDF is available under `data/`
+- All monetary values stored as integer cents (avoids floating point)
+- Weights in metric tons (MT)
+- Sulfur grades: Bright Yellow (99.9%+), Dark/Off-Spec, Recovered
+- Sulfur forms: Molten, Prills, Granular, Blocks
+- Pricing benchmarks match Acuity Regional Briefing format
+- Customer types: Refinery, Fertilizer, Chemical, Mining, Other
 
-## Testing
+## License
 
-Vitest is configured in both apps. The frontend also loads `@testing-library/jest-dom` in `frontend/src/test-setup.ts`. Run `npm run test:run` in the package you are changing before opening a pull request.
+Private repository.
