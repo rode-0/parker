@@ -5,7 +5,7 @@ import { calculateQuotePrice } from "../services/pricing";
 
 const router = Router();
 
-const VALID_BENCHMARKS = ["tampa_cfr", "vancouver_fob", "middle_east_fob", "china_cfr"];
+// Benchmarks are dynamic based on imported data
 const VALID_GRADES = ["bright_yellow", "dark", "recovered"];
 const VALID_FORMS = ["molten", "prills", "granular", "blocks"];
 const VALID_STATUSES = ["draft", "sent", "accepted", "expired"];
@@ -13,7 +13,7 @@ const VALID_STATUSES = ["draft", "sent", "accepted", "expired"];
 function validateQuoteInput(body: Record<string, unknown>): string | null {
   if (!body.customer_name || typeof body.customer_name !== "string") return "customer_name is required";
   if (!body.customer_company || typeof body.customer_company !== "string") return "customer_company is required";
-  if (!VALID_BENCHMARKS.includes(body.benchmark as string)) return "Invalid benchmark";
+  if (!body.benchmark || typeof body.benchmark !== "string") return "benchmark is required";
   if (!VALID_GRADES.includes(body.grade as string)) return "Invalid grade";
   if (!VALID_FORMS.includes(body.form as string)) return "Invalid form";
   if (typeof body.quantity_mt !== "number" || body.quantity_mt <= 0) return "quantity_mt must be positive";

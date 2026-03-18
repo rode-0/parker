@@ -3,7 +3,8 @@ import type {
   SulfurPrice,
   Quote,
   QuotePricing,
-  PricingBenchmark,
+  ImportResult,
+  ImportHistoryEntry,
 } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
@@ -23,7 +24,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 export const pricesApi = {
   getLatest: () => request<SulfurPrice[]>("/prices"),
 
-  getHistory: (benchmark: PricingBenchmark, days = 90) =>
+  getHistory: (benchmark: string, days = 90) =>
     request<SulfurPrice[]>(`/prices/${benchmark}/history?days=${days}`),
 };
 
@@ -36,7 +37,7 @@ export const quotesApi = {
   create: (input: {
     customer_name: string;
     customer_company: string;
-    benchmark: PricingBenchmark;
+    benchmark: string;
     grade: string;
     form: string;
     quantity_mt: number;
@@ -51,7 +52,7 @@ export const quotesApi = {
   preview: (input: {
     customer_name: string;
     customer_company: string;
-    benchmark: PricingBenchmark;
+    benchmark: string;
     grade: string;
     form: string;
     quantity_mt: number;
@@ -70,4 +71,22 @@ export const quotesApi = {
 
   delete: (id: number) =>
     request<{ deleted: boolean }>(`/quotes/${id}`, { method: "DELETE" }),
+};
+
+export const importApi = {
+  uploadAcuity: async (file: File): Promise<ImportResult> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await fetch(`${API_URL}/import/acuity`, {
+      method: "POST",
+      body: formData,
+    });
+    const json = (await res.json()) as ApiResponse<ImportResult>;
+    if (!json.success) {
+      throw new Error(json.error);
+    }
+    return json.data;
+  },
+
+  history: () => request<ImportHistoryEntry[]>("/import/history"),
 };

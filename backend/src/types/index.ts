@@ -2,11 +2,7 @@ export type SulfurGrade = "bright_yellow" | "dark" | "recovered";
 
 export type SulfurForm = "molten" | "prills" | "granular" | "blocks";
 
-export type PricingBenchmark =
-  | "tampa_cfr"
-  | "vancouver_fob"
-  | "middle_east_fob"
-  | "china_cfr";
+export type PricingBenchmark = string;
 
 export type ApiResponse<T> =
   | { success: true; data: T }
@@ -14,17 +10,21 @@ export type ApiResponse<T> =
 
 export type SulfurPrice = {
   id: number;
-  benchmark: PricingBenchmark;
-  price_cents: number;
+  benchmark: string;
+  price_low_cents: number;
+  price_high_cents: number;
+  price_type: string;
+  delivery_term: string;
   recorded_at: string;
   source: string;
+  report_date: string | null;
 };
 
 export type Quote = {
   id: number;
   customer_name: string;
   customer_company: string;
-  benchmark: PricingBenchmark;
+  benchmark: string;
   grade: SulfurGrade;
   form: SulfurForm;
   quantity_mt: number;
@@ -43,7 +43,7 @@ export type Quote = {
 export type CreateQuoteInput = {
   customer_name: string;
   customer_company: string;
-  benchmark: PricingBenchmark;
+  benchmark: string;
   grade: SulfurGrade;
   form: SulfurForm;
   quantity_mt: number;
@@ -52,7 +52,7 @@ export type CreateQuoteInput = {
 };
 
 export type PriceEntry = {
-  benchmark: PricingBenchmark;
+  benchmark: string;
   price_cents: number;
   source: string;
 };

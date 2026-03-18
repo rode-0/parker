@@ -13,7 +13,7 @@ router.get("/", async (_req: Request, res: Response) => {
 
 router.get("/:benchmark/history", async (req: Request, res: Response) => {
   const benchmark = req.params.benchmark as string;
-  if (!benchmark || !VALID_BENCHMARKS.includes(benchmark)) {
+  if (!benchmark) {
     res.status(400).json({ success: false, error: "Invalid benchmark" });
     return;
   }
@@ -26,7 +26,7 @@ router.get("/:benchmark/history", async (req: Request, res: Response) => {
 router.post("/", async (req: Request, res: Response) => {
   const { benchmark, price_cents, source } = req.body;
 
-  if (!benchmark || !VALID_BENCHMARKS.includes(benchmark)) {
+  if (!benchmark || typeof benchmark !== "string") {
     res.status(400).json({ success: false, error: "Invalid benchmark" });
     return;
   }

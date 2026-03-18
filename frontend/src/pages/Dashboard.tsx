@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { SulfurPrice, PricingBenchmark } from "../types";
+import type { SulfurPrice } from "../types";
 import { BENCHMARK_LABELS } from "../types";
 import { pricesApi } from "../services/api";
 
@@ -7,10 +7,16 @@ function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
+function formatRange(low: number, high: number): string {
+  if (low === high) return formatPrice(low);
+  return `${formatPrice(low)} - ${formatPrice(high)}`;
+}
+
 function PriceChart({ data }: { data: SulfurPrice[] }) {
   if (data.length < 2) return <div className="chart-area">Not enough data</div>;
 
-  const prices = data.map((d) => d.price_cents);
+  // Use midpoint of range for charting
+  const prices = data.map((d) => Math.round((d.price_low_cents + d.price_high_cents) / 2));
   const minPrice = Math.min(...prices);
   const maxPrice = Math.max(...prices);
   const range = maxPrice - minPrice || 1;
@@ -22,9 +28,9 @@ function PriceChart({ data }: { data: SulfurPrice[] }) {
   const chartW = width - padX * 2;
   const chartH = height - padY * 2;
 
-  const points = data.map((d, i) => ({
+  const points = prices.map((p, i) => ({
     x: padX + (i / (data.length - 1)) * chartW,
-    y: padY + chartH - ((d.price_cents - minPrice) / range) * chartH,
+    y: padY + chartH - ((p - minPrice) / range) * chartH,
   }));
 
   const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
@@ -59,7 +65,7 @@ function PriceChart({ data }: { data: SulfurPrice[] }) {
 function Dashboard() {
   const [prices, setPrices] = useState<SulfurPrice[]>([]);
   const [history, setHistory] = useState<SulfurPrice[]>([]);
-  const [selectedBenchmark, setSelectedBenchmark] = useState<PricingBenchmark>("tampa_cfr");
+  const [selectedBenchmark, setSelectedBenchmark] = useState("vancouver_fob");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -68,11 +74,13 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    pricesApi.getHistory(selectedBenchmark, 90).then(setHistory).catch(() => setHistory([]));
+    pricesApi.getHistory(selectedBenchmark, 365).then(setHistory).catch(() => setHistory([]));
   }, [selectedBenchmark]);
 
   if (loading) return <div className="loading">Loading prices...</div>;
   if (error) return <div className="error">{error}</div>;
+
+  const benchmarks = prices.map((p) => p.benchmark);
 
   return (
     <div>
@@ -88,28 +96,38 @@ function Dashboard() {
             onClick={() => setSelectedBenchmark(p.benchmark)}
             style={{ cursor: "pointer", borderColor: p.benchmark === selectedBenchmark ? "var(--accent)" : undefined }}
           >
-            <div className="benchmark">{BENCHMARK_LABELS[p.benchmark]}</div>
+            <div className="benchmark">
+              {BENCHMARK_LABELS[p.benchmark] || p.benchmark}
+            </div>
             <div className="price">
-              {formatPrice(p.price_cents)}
+              {formatRange(p.price_low_cents, p.price_high_cents)}
               <span className="unit">/MT</span>
             </div>
-            <div className="change">{p.recorded_at}</div>
+            <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: 12 }}>
+              <span style={{ color: "var(--text-muted)" }}>{p.delivery_term}</span>
+              <span style={{ color: "var(--text-muted)" }}>
+                {p.source === "acuity" ? "Acuity" : p.source}
+              </span>
+              <span style={{ color: "var(--text-muted)" }}>{p.recorded_at}</span>
+            </div>
           </div>
         ))}
       </div>
 
       <div className="chart-container">
         <div className="card-header">
-          <h3 className="card-title">{BENCHMARK_LABELS[selectedBenchmark]} - 90 Day History</h3>
+          <h3 className="card-title">
+            {BENCHMARK_LABELS[selectedBenchmark] || selectedBenchmark} - Price History
+          </h3>
         </div>
         <div className="chart-tabs">
-          {(Object.entries(BENCHMARK_LABELS) as [PricingBenchmark, string][]).map(([key, label]) => (
+          {benchmarks.map((key) => (
             <button
               key={key}
               className={`chart-tab ${key === selectedBenchmark ? "active" : ""}`}
               onClick={() => setSelectedBenchmark(key)}
             >
-              {label}
+              {BENCHMARK_LABELS[key] || key}
             </button>
           ))}
         </div>

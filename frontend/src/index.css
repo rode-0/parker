@@ -5,8 +5,8 @@
 }
 
 :root {
-  --sulfur-yellow: #e8d44d;
-  --sulfur-dark: #b8a830;
+  --sulfur-yellow: #f7f477;
+  --sulfur-dark: #f2ec44;
   --bg-primary: #0f1119;
   --bg-secondary: #1a1d2e;
   --bg-card: #222640;
@@ -14,8 +14,8 @@
   --text-secondary: #9ca3af;
   --text-muted: #6b7280;
   --border: #2d3248;
-  --accent: #e8d44d;
-  --accent-hover: #f0e060;
+  --accent: #f7f477;
+  --accent-hover: #faf8a0;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #f87171;

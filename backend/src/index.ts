@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import pricesRouter from "./routes/prices";
 import quotesRouter from "./routes/quotes";
+import importRouter from "./routes/import";
 import { closeDatabase } from "./db";
 
 const app = express();
@@ -16,6 +17,7 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/prices", pricesRouter);
 app.use("/api/quotes", quotesRouter);
+app.use("/api/import", importRouter);
 
 const server = app.listen(PORT, () => {
   process.stdout.write(`Parker API running on port ${PORT}\n`);

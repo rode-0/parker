@@ -17,6 +17,9 @@ function App() {
             <NavLink to="/quotes" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
               Quotes
             </NavLink>
+            <NavLink to="/import" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+              Import
+            </NavLink>
           </nav>
         </div>
       </header>

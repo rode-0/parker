@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { PricingBenchmark, SulfurGrade, SulfurForm, QuotePricing } from "../types";
+import type { SulfurGrade, SulfurForm, QuotePricing } from "../types";
 import { BENCHMARK_LABELS, GRADE_LABELS, FORM_LABELS } from "../types";
 import { quotesApi } from "../services/api";
 
@@ -17,7 +17,7 @@ function QuoteBuilder() {
   const [form, setForm] = useState({
     customer_name: "",
     customer_company: "",
-    benchmark: "tampa_cfr" as PricingBenchmark,
+    benchmark: "vancouver_fob",
     grade: "bright_yellow" as SulfurGrade,
     sulfur_form: "prills" as SulfurForm,
     quantity_mt: 500,

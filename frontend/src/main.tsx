@@ -5,6 +5,7 @@ import App from "./App";
 import Dashboard from "./pages/Dashboard";
 import QuoteBuilder from "./pages/QuoteBuilder";
 import QuoteList from "./pages/QuoteList";
+import Import from "./pages/Import";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="quotes/new" element={<QuoteBuilder />} />
           <Route path="quotes" element={<QuoteList />} />
+          <Route path="import" element={<Import />} />
         </Route>
       </Routes>
     </BrowserRouter>

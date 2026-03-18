@@ -27,7 +27,7 @@ function rowToPrice(columns: string[], values: unknown[]): SulfurPrice {
   return obj as unknown as SulfurPrice;
 }
 
-export async function getLatestPrice(benchmark: PricingBenchmark): Promise<SulfurPrice | null> {
+export async function getLatestPrice(benchmark: string): Promise<SulfurPrice | null> {
   const db = await getDatabase();
   const result = db.exec(
     "SELECT * FROM sulfur_prices WHERE benchmark = ? ORDER BY recorded_at DESC LIMIT 1",
@@ -53,7 +53,7 @@ export async function getAllLatestPrices(): Promise<SulfurPrice[]> {
 }
 
 export async function getPriceHistory(
-  benchmark: PricingBenchmark,
+  benchmark: string,
   days: number = 90
 ): Promise<SulfurPrice[]> {
   const db = await getDatabase();
@@ -70,8 +70,8 @@ export async function getPriceHistory(
 export async function addPrice(entry: PriceEntry): Promise<SulfurPrice> {
   const db = await getDatabase();
   db.run(
-    "INSERT INTO sulfur_prices (benchmark, price_cents, source) VALUES (?, ?, ?)",
-    [entry.benchmark, entry.price_cents, entry.source]
+    "INSERT INTO sulfur_prices (benchmark, price_low_cents, price_high_cents, price_type, delivery_term, source) VALUES (?, ?, ?, ?, ?, ?)",
+    [entry.benchmark, entry.price_cents, entry.price_cents, "N", "", entry.source]
   );
   const result = db.exec("SELECT * FROM sulfur_prices WHERE id = last_insert_rowid()");
   saveDatabase();
@@ -79,7 +79,7 @@ export async function addPrice(entry: PriceEntry): Promise<SulfurPrice> {
 }
 
 export async function calculateQuotePrice(
-  benchmark: PricingBenchmark,
+  benchmark: string,
   grade: SulfurGrade,
   form: SulfurForm,
   quantityMt: number,
@@ -97,7 +97,11 @@ export async function calculateQuotePrice(
     throw new Error(`No pricing data available for benchmark: ${benchmark}`);
   }
 
-  const basePriceCents = latestPrice.price_cents;
+  // Use midpoint of range for quote pricing
+  const basePriceCents = Math.round(
+    ((latestPrice as unknown as Record<string, number>).price_low_cents +
+     (latestPrice as unknown as Record<string, number>).price_high_cents) / 2
+  );
   const gradeAdj = GRADE_ADJUSTMENTS[grade];
   const formAdj = FORM_ADJUSTMENTS[form];
   const volumeDiscount = getVolumeDiscount(quantityMt);
