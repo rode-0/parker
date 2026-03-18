@@ -16,7 +16,7 @@ export async function importAcuityPdf(
   buffer: Buffer,
   filename: string
 ): Promise<ImportResult> {
-  const parser = new PDFParse(new Uint8Array(buffer));
+  const parser = new PDFParse(new Uint8Array(buffer) as unknown as Buffer);
   const pdfResult = await parser.getText();
   const text = (pdfResult as unknown as { text: string }).text;
   const report = parseAcuityPdf(text);

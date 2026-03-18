@@ -94,6 +94,36 @@ export function initializeDatabase(db: Database): void {
 
   db.run("CREATE INDEX IF NOT EXISTS idx_quotes_status ON quotes(status)");
   db.run("CREATE INDEX IF NOT EXISTS idx_quotes_customer ON quotes(customer_company)");
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS customers (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      company_name TEXT NOT NULL,
+      contact_name TEXT NOT NULL DEFAULT '',
+      email TEXT NOT NULL DEFAULT '',
+      phone TEXT NOT NULL DEFAULT '',
+      address TEXT NOT NULL,
+      city TEXT NOT NULL,
+      state TEXT NOT NULL,
+      zip TEXT NOT NULL DEFAULT '',
+      country TEXT NOT NULL DEFAULT 'US',
+      latitude REAL,
+      longitude REAL,
+      customer_type TEXT NOT NULL DEFAULT 'other'
+        CHECK(customer_type IN ('refinery','fertilizer','chemical','mining','other')),
+      annual_volume_mt REAL,
+      last_visit TEXT,
+      priority TEXT NOT NULL DEFAULT 'medium'
+        CHECK(priority IN ('high','medium','low')),
+      notes TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  db.run("CREATE INDEX IF NOT EXISTS idx_customers_company ON customers(company_name)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_customers_state ON customers(state)");
+  db.run("CREATE INDEX IF NOT EXISTS idx_customers_type ON customers(customer_type)");
 }
 
 export function seedPrices(db: Database): void {

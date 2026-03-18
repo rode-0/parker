@@ -399,6 +399,15 @@ tr:hover td {
 .badge-accepted { background: #1a3a2a; color: var(--success); }
 .badge-expired { background: #3a1a1a; color: var(--danger); }
 
+.badge-high { background: #3a1a1a; color: var(--danger); }
+.badge-medium { background: #3a2a1a; color: var(--warning); }
+.badge-low { background: #1a3a2a; color: var(--success); }
+.badge-refinery { background: #3a1a1a; color: var(--danger); }
+.badge-fertilizer { background: #1a3a2a; color: var(--success); }
+.badge-chemical { background: #1a2a3a; color: #60a5fa; }
+.badge-mining { background: #3a2a1a; color: var(--warning); }
+.badge-other { background: var(--bg-secondary); color: var(--text-muted); }
+
 /* Layout helpers */
 .page-header {
   display: flex;
@@ -451,3 +460,12 @@ tr:hover td {
   padding: 60px;
   color: var(--text-muted);
 }
+
+/* Customer features */
+.custom-pin { background: transparent; border: none; }
+.map-container { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); }
+.filter-bar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; flex-wrap: wrap; }
+.mapping-row { display: flex; align-items: center; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.mapping-label { flex: 0 0 180px; font-size: 14px; color: var(--text-secondary); }
+.mapping-select { flex: 1; }
+.required-mark { color: var(--danger); margin-left: 4px; }
