@@ -9,6 +9,8 @@ import Import from "./pages/Import";
 import Customers from "./pages/Customers";
 import CustomerImport from "./pages/CustomerImport";
 import CustomerMap from "./pages/CustomerMap";
+import CustomerDetail from "./pages/CustomerDetail";
+import Markets from "./pages/Markets";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -24,6 +26,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="customers" element={<Customers />} />
           <Route path="customers/import" element={<CustomerImport />} />
           <Route path="customers/map" element={<CustomerMap />} />
+          <Route path="customers/:id" element={<CustomerDetail />} />
+          <Route path="markets" element={<Markets />} />
         </Route>
       </Routes>
     </BrowserRouter>

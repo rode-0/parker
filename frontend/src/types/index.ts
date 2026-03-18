@@ -20,6 +20,7 @@ export type SulfurPrice = {
 
 export type Quote = {
   id: number;
+  customer_id: number | null;
   customer_name: string;
   customer_company: string;
   benchmark: string;

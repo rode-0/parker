@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import type { SulfurGrade, SulfurForm, QuotePricing } from "../types";
 import { BENCHMARK_LABELS, GRADE_LABELS, FORM_LABELS } from "../types";
+import type { Customer } from "../types/customer";
 import { quotesApi } from "../services/api";
+import { customersApi } from "../services/customerApi";
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -15,6 +17,7 @@ function formatTotal(cents: number): string {
 function QuoteBuilder() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
+    customer_id: null as number | null,
     customer_name: "",
     customer_company: "",
     benchmark: "vancouver_fob",
@@ -27,6 +30,56 @@ function QuoteBuilder() {
   const [preview, setPreview] = useState<QuotePricing | null>(null);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  // Customer autocomplete
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [suggestions, setSuggestions] = useState<Customer[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (customerSearch.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const results = await customersApi.list({ search: customerSearch });
+        setSuggestions(results.slice(0, 8));
+      } catch {
+        setSuggestions([]);
+      }
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [customerSearch]);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const selectCustomer = (c: Customer) => {
+    setForm((prev) => ({
+      ...prev,
+      customer_id: c.id,
+      customer_name: c.contact_name || c.company_name,
+      customer_company: c.company_name,
+    }));
+    setCustomerSearch(c.company_name);
+    setShowSuggestions(false);
+    setPreview(null);
+  };
+
+  const clearCustomer = () => {
+    setForm((prev) => ({ ...prev, customer_id: null, customer_name: "", customer_company: "" }));
+    setCustomerSearch("");
+    setPreview(null);
+  };
 
   const updateField = (field: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -60,6 +113,7 @@ function QuoteBuilder() {
     setError("");
     try {
       await quotesApi.create({
+        customer_id: form.customer_id ?? undefined,
         customer_name: form.customer_name,
         customer_company: form.customer_company,
         benchmark: form.benchmark,
@@ -87,26 +141,72 @@ function QuoteBuilder() {
         <div className="card">
           <h3 className="card-title" style={{ marginBottom: 20 }}>Quote Details</h3>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Customer Name</label>
+          <div className="form-group">
+            <label className="form-label">Customer (search or type manually)</label>
+            <div style={{ position: "relative" }} ref={suggestionsRef}>
               <input
                 className="form-input"
-                value={form.customer_name}
-                onChange={(e) => updateField("customer_name", e.target.value)}
-                placeholder="John Smith"
+                value={customerSearch}
+                onChange={(e) => {
+                  setCustomerSearch(e.target.value);
+                  setShowSuggestions(true);
+                  if (form.customer_id) clearCustomer();
+                }}
+                onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
+                placeholder="Search customers or type company name..."
               />
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="autocomplete-dropdown">
+                  {suggestions.map((c) => (
+                    <div
+                      key={c.id}
+                      className="autocomplete-item"
+                      onClick={() => selectCustomer(c)}
+                    >
+                      <div style={{ fontWeight: 500 }}>{c.company_name}</div>
+                      <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                        {c.contact_name && `${c.contact_name} - `}{c.city}, {c.state}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="form-group">
-              <label className="form-label">Company</label>
-              <input
-                className="form-input"
-                value={form.customer_company}
-                onChange={(e) => updateField("customer_company", e.target.value)}
-                placeholder="Acme Chemicals"
-              />
-            </div>
+            {form.customer_id && (
+              <div style={{ fontSize: 12, color: "var(--success)", marginTop: 4 }}>
+                Linked to customer #{form.customer_id}: {form.customer_company}
+                <span
+                  style={{ marginLeft: 8, color: "var(--text-muted)", cursor: "pointer", textDecoration: "underline" }}
+                  onClick={clearCustomer}
+                >
+                  clear
+                </span>
+              </div>
+            )}
           </div>
+
+          {!form.customer_id && (
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Customer Name</label>
+                <input
+                  className="form-input"
+                  value={form.customer_name}
+                  onChange={(e) => updateField("customer_name", e.target.value)}
+                  placeholder="John Smith"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Company</label>
+                <input
+                  className="form-input"
+                  value={form.customer_company}
+                  onChange={(e) => updateField("customer_company", e.target.value)}
+                  placeholder="Acme Chemicals"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="form-row">
             <div className="form-group">

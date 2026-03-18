@@ -73,6 +73,7 @@ export function initializeDatabase(db: Database): void {
   db.run(`
     CREATE TABLE IF NOT EXISTS quotes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_id INTEGER REFERENCES customers(id),
       customer_name TEXT NOT NULL,
       customer_company TEXT NOT NULL,
       benchmark TEXT NOT NULL,
@@ -120,6 +121,20 @@ export function initializeDatabase(db: Database): void {
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     )
   `);
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS activities (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+      type TEXT NOT NULL CHECK(type IN ('visit','call','email','note')),
+      date TEXT NOT NULL,
+      duration_minutes INTEGER,
+      notes TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  db.run("CREATE INDEX IF NOT EXISTS idx_activities_customer ON activities(customer_id, date DESC)");
 
   db.run("CREATE INDEX IF NOT EXISTS idx_customers_company ON customers(company_name)");
   db.run("CREATE INDEX IF NOT EXISTS idx_customers_state ON customers(state)");

@@ -24,6 +24,9 @@ function App() {
             <NavLink to="/customers" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
               Customers
             </NavLink>
+            <NavLink to="/markets" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+              Markets
+            </NavLink>
           </nav>
         </div>
       </header>

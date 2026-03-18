@@ -27,7 +27,9 @@ router.get("/", async (req: Request, res: Response) => {
     res.status(400).json({ success: false, error: "Invalid status filter" });
     return;
   }
-  const quotes = await listQuotes(status);
+  const customerIdStr = req.query.customer_id as string | undefined;
+  const customerId = customerIdStr ? parseInt(customerIdStr) : undefined;
+  const quotes = await listQuotes({ status, customer_id: customerId });
   res.json({ success: true, data: quotes });
 });
 
@@ -53,6 +55,7 @@ router.post("/", async (req: Request, res: Response) => {
   }
 
   const input: CreateQuoteInput = {
+    customer_id: req.body.customer_id,
     customer_name: req.body.customer_name,
     customer_company: req.body.customer_company,
     benchmark: req.body.benchmark,

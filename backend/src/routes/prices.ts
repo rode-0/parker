@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import type { PricingBenchmark } from "../types";
 import { getAllLatestPrices, getPriceHistory, addPrice } from "../services/pricing";
+import { getDatabase } from "../db";
 
 const router = Router();
 
@@ -41,6 +42,54 @@ router.post("/", async (req: Request, res: Response) => {
     source: source || "manual",
   });
   res.status(201).json({ success: true, data: price });
+});
+
+router.get("/freight/latest", async (_req: Request, res: Response) => {
+  const db = await getDatabase();
+  const result = db.exec(
+    `SELECT fr.* FROM freight_rates fr
+     INNER JOIN (SELECT route, MAX(recorded_at) as max_date FROM freight_rates GROUP BY route) latest
+     ON fr.route = latest.route AND fr.recorded_at = latest.max_date`
+  );
+  if (!result[0]) { res.json({ success: true, data: [] }); return; }
+  const data = result[0].values.map((row: unknown[]) => {
+    const obj: Record<string, unknown> = {};
+    result[0]!.columns.forEach((col, i) => { obj[col] = row[i]; });
+    return obj;
+  });
+  res.json({ success: true, data });
+});
+
+router.get("/markets/latest", async (_req: Request, res: Response) => {
+  const db = await getDatabase();
+  const result = db.exec(
+    `SELECT rm.* FROM related_markets rm
+     INNER JOIN (SELECT market, MAX(recorded_at) as max_date FROM related_markets GROUP BY market) latest
+     ON rm.market = latest.market AND rm.recorded_at = latest.max_date`
+  );
+  if (!result[0]) { res.json({ success: true, data: [] }); return; }
+  const data = result[0].values.map((row: unknown[]) => {
+    const obj: Record<string, unknown> = {};
+    result[0]!.columns.forEach((col, i) => { obj[col] = row[i]; });
+    return obj;
+  });
+  res.json({ success: true, data });
+});
+
+router.get("/fx/latest", async (_req: Request, res: Response) => {
+  const db = await getDatabase();
+  const result = db.exec(
+    `SELECT er.* FROM exchange_rates er
+     INNER JOIN (SELECT currency, MAX(recorded_at) as max_date FROM exchange_rates GROUP BY currency) latest
+     ON er.currency = latest.currency AND er.recorded_at = latest.max_date`
+  );
+  if (!result[0]) { res.json({ success: true, data: [] }); return; }
+  const data = result[0].values.map((row: unknown[]) => {
+    const obj: Record<string, unknown> = {};
+    result[0]!.columns.forEach((col, i) => { obj[col] = row[i]; });
+    return obj;
+  });
+  res.json({ success: true, data });
 });
 
 export default router;

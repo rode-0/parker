@@ -113,7 +113,7 @@ function Customers() {
                 {customers.map((c) => (
                   <tr key={c.id}>
                     <td>
-                      <div>{c.company_name}</div>
+                      <div><Link to={`/customers/${c.id}`} style={{ color: "var(--accent)", textDecoration: "none" }}>{c.company_name}</Link></div>
                       {c.email && <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{c.email}</div>}
                     </td>
                     <td>{c.contact_name}</td>

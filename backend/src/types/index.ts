@@ -22,6 +22,7 @@ export type SulfurPrice = {
 
 export type Quote = {
   id: number;
+  customer_id: number | null;
   customer_name: string;
   customer_company: string;
   benchmark: string;
@@ -41,6 +42,7 @@ export type Quote = {
 };
 
 export type CreateQuoteInput = {
+  customer_id?: number;
   customer_name: string;
   customer_company: string;
   benchmark: string;

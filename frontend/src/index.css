@@ -5,8 +5,8 @@
 }
 
 :root {
-  --sulfur-yellow: #f7f477;
-  --sulfur-dark: #f2ec44;
+  --sulfur-yellow: #f9f0a0;
+  --sulfur-dark: #f5e870;
   --bg-primary: #0f1119;
   --bg-secondary: #1a1d2e;
   --bg-card: #222640;
@@ -14,8 +14,8 @@
   --text-secondary: #9ca3af;
   --text-muted: #6b7280;
   --border: #2d3248;
-  --accent: #f7f477;
-  --accent-hover: #faf8a0;
+  --accent: #f9f0a0;
+  --accent-hover: #fcf5c0;
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #f87171;
@@ -459,6 +459,36 @@ tr:hover td {
   text-align: center;
   padding: 60px;
   color: var(--text-muted);
+}
+
+/* Autocomplete */
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-top: 4px;
+  z-index: 100;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.autocomplete-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+
+.autocomplete-item:hover {
+  background: var(--bg-secondary);
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
 }
 
 /* Customer features */

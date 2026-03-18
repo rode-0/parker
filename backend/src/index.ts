@@ -4,6 +4,7 @@ import pricesRouter from "./routes/prices";
 import quotesRouter from "./routes/quotes";
 import importRouter from "./routes/import";
 import customersRouter from "./routes/customers";
+import activitiesRouter from "./routes/activities";
 import { closeDatabase } from "./db";
 
 const app = express();
@@ -20,6 +21,7 @@ app.use("/api/prices", pricesRouter);
 app.use("/api/quotes", quotesRouter);
 app.use("/api/import", importRouter);
 app.use("/api/customers", customersRouter);
+app.use("/api/activities", activitiesRouter);
 
 const server = app.listen(PORT, () => {
   process.stdout.write(`Georgia Gulf Internal API running on port ${PORT}\n`);

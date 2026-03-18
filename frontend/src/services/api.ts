@@ -29,12 +29,18 @@ export const pricesApi = {
 };
 
 export const quotesApi = {
-  list: (status?: string) =>
-    request<Quote[]>(`/quotes${status ? `?status=${status}` : ""}`),
+  list: (params?: { status?: string; customer_id?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.status) query.set("status", params.status);
+    if (params?.customer_id) query.set("customer_id", String(params.customer_id));
+    const qs = query.toString();
+    return request<Quote[]>(`/quotes${qs ? `?${qs}` : ""}`);
+  },
 
   get: (id: number) => request<Quote>(`/quotes/${id}`),
 
   create: (input: {
+    customer_id?: number;
     customer_name: string;
     customer_company: string;
     benchmark: string;

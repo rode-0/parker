@@ -16,7 +16,7 @@ function QuoteList() {
   const fetchQuotes = async () => {
     setLoading(true);
     try {
-      const data = await quotesApi.list(statusFilter || undefined);
+      const data = await quotesApi.list({ status: statusFilter || undefined });
       setQuotes(data);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load quotes");

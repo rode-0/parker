@@ -20,11 +20,12 @@ export async function createQuote(input: CreateQuoteInput): Promise<Quote> {
   const db = await getDatabase();
   db.run(
     `INSERT INTO quotes (
-      customer_name, customer_company, benchmark, grade, form,
+      customer_id, customer_name, customer_company, benchmark, grade, form,
       quantity_mt, base_price_cents, grade_adj_cents, form_adj_cents,
       freight_cents, volume_discount_cents, total_cents, notes
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
+      input.customer_id ?? null,
       input.customer_name,
       input.customer_company,
       input.benchmark,
@@ -53,13 +54,38 @@ export async function getQuote(id: number): Promise<Quote | null> {
   return rowToQuote(result[0].columns, result[0].values[0]!);
 }
 
-export async function listQuotes(status?: string): Promise<Quote[]> {
+export async function listQuotes(params: {
+  status?: string;
+  customer_id?: number;
+}): Promise<Quote[]> {
   const db = await getDatabase();
-  const query = status
-    ? "SELECT * FROM quotes WHERE status = ? ORDER BY created_at DESC LIMIT 100"
-    : "SELECT * FROM quotes ORDER BY created_at DESC LIMIT 100";
-  const params = status ? [status] : [];
-  const result = db.exec(query, params);
+  const conditions: string[] = [];
+  const args: unknown[] = [];
+
+  if (params.status) {
+    conditions.push("status = ?");
+    args.push(params.status);
+  }
+  if (params.customer_id) {
+    conditions.push("customer_id = ?");
+    args.push(params.customer_id);
+  }
+
+  const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+  const result = db.exec(
+    `SELECT * FROM quotes ${where} ORDER BY created_at DESC LIMIT 100`,
+    args
+  );
+  if (!result[0]) return [];
+  return result[0].values.map((row: unknown[]) => rowToQuote(result[0]!.columns, row));
+}
+
+export async function getQuotesByCustomer(customerId: number): Promise<Quote[]> {
+  const db = await getDatabase();
+  const result = db.exec(
+    "SELECT * FROM quotes WHERE customer_id = ? ORDER BY created_at DESC",
+    [customerId]
+  );
   if (!result[0]) return [];
   return result[0].values.map((row: unknown[]) => rowToQuote(result[0]!.columns, row));
 }
